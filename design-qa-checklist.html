@@ -1,0 +1,606 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Чеклист QA вёрстки</title>
+<style>
+  :root {
+    --bg: #f5f4f0;
+    --surface: #ffffff;
+    --surface-hover: #fafaf8;
+    --border: #e2e0d8;
+    --border-strong: #cccab8;
+    --text-primary: #1a1916;
+    --text-secondary: #6b6960;
+    --text-muted: #9e9c93;
+    --accent: #2d5be3;
+    --accent-bg: #eef2fd;
+    --accent-text: #1e3fa8;
+    --success: #1a7a4a;
+    --success-bg: #e8f7ee;
+    --success-fill: #1a7a4a;
+    --danger: #b83232;
+    --danger-bg: #fdeaea;
+    --warning: #8a5a0a;
+    --warning-bg: #fef3db;
+    --radius: 8px;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #111110;
+      --surface: #1c1c1a;
+      --surface-hover: #222220;
+      --border: #2e2e2b;
+      --border-strong: #3d3d39;
+      --text-primary: #f0ede6;
+      --text-secondary: #9e9c93;
+      --text-muted: #6b6960;
+      --accent: #5b82f5;
+      --accent-bg: #1a2442;
+      --accent-text: #8faafc;
+      --success: #4db87a;
+      --success-bg: #0d2a1c;
+      --success-fill: #4db87a;
+      --danger: #e06060;
+      --danger-bg: #2a1212;
+      --warning: #e0a83a;
+      --warning-bg: #261c07;
+    }
+  }
+
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Helvetica, Arial, sans-serif;
+    background: var(--bg);
+    color: var(--text-primary);
+    line-height: 1.6;
+    min-height: 100vh;
+    padding: 0 0 4rem;
+  }
+
+  .top-bar {
+    position: sticky;
+    top: 0;
+    z-index: 100;
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 14px 24px;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    backdrop-filter: blur(8px);
+  }
+
+  .top-bar h1 {
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.01em;
+    flex: 1;
+  }
+
+  .progress-pill {
+    font-size: 12px;
+    font-weight: 500;
+    color: var(--text-secondary);
+    white-space: nowrap;
+  }
+
+  .progress-wrap {
+    width: 120px;
+    height: 4px;
+    background: var(--border);
+    border-radius: 2px;
+    overflow: hidden;
+  }
+
+  .progress-fill {
+    height: 100%;
+    background: var(--success-fill);
+    border-radius: 2px;
+    transition: width 0.35s ease;
+  }
+
+  .reset-btn {
+    font-size: 12px;
+    color: var(--text-muted);
+    background: none;
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    padding: 5px 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    white-space: nowrap;
+  }
+  .reset-btn:hover { background: var(--bg); color: var(--text-secondary); }
+
+  .main {
+    max-width: 760px;
+    margin: 0 auto;
+    padding: 2rem 20px 0;
+  }
+
+  .page-header {
+    margin-bottom: 2rem;
+  }
+
+  .page-header h2 {
+    font-size: 26px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    margin-bottom: 6px;
+  }
+
+  .page-header p {
+    font-size: 14px;
+    color: var(--text-secondary);
+  }
+
+  .stats-row {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 10px;
+    margin-bottom: 2rem;
+  }
+
+  .stat-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    padding: 14px 16px;
+  }
+
+  .stat-card .n {
+    font-size: 28px;
+    font-weight: 700;
+    letter-spacing: -0.03em;
+    line-height: 1;
+    margin-bottom: 4px;
+  }
+
+  .stat-card .l {
+    font-size: 12px;
+    color: var(--text-secondary);
+  }
+
+  .stat-card.s-done .n { color: var(--success); }
+  .stat-card.s-crit .n { color: var(--danger); }
+
+  .section {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    margin-bottom: 10px;
+    overflow: hidden;
+  }
+
+  .sec-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    padding: 13px 16px;
+    cursor: pointer;
+    user-select: none;
+    transition: background 0.12s;
+  }
+
+  .sec-header:hover { background: var(--surface-hover); }
+
+  .sec-icon {
+    font-size: 16px;
+    width: 28px;
+    height: 28px;
+    border-radius: 6px;
+    background: var(--accent-bg);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .sec-title {
+    font-size: 14px;
+    font-weight: 600;
+    flex: 1;
+    letter-spacing: -0.01em;
+  }
+
+  .sec-badge {
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 8px;
+    border-radius: 20px;
+    background: var(--bg);
+    color: var(--text-secondary);
+    border: 1px solid var(--border);
+  }
+
+  .sec-badge.done {
+    background: var(--success-bg);
+    color: var(--success);
+    border-color: transparent;
+  }
+
+  .sec-badge.partial {
+    background: var(--warning-bg);
+    color: var(--warning);
+    border-color: transparent;
+  }
+
+  .sec-chevron {
+    font-size: 12px;
+    color: var(--text-muted);
+    transition: transform 0.2s;
+    flex-shrink: 0;
+  }
+
+  .sec-chevron.open { transform: rotate(180deg); }
+
+  .items {
+    border-top: 1px solid var(--border);
+  }
+
+  .item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 10px 16px;
+    cursor: pointer;
+    border-bottom: 1px solid var(--border);
+    transition: background 0.1s;
+  }
+
+  .item:last-child { border-bottom: none; }
+  .item:hover { background: var(--surface-hover); }
+
+  .cb {
+    width: 18px;
+    height: 18px;
+    border-radius: 4px;
+    border: 1.5px solid var(--border-strong);
+    flex-shrink: 0;
+    margin-top: 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.15s;
+    background: var(--surface);
+  }
+
+  .cb.checked {
+    background: var(--success-fill);
+    border-color: var(--success-fill);
+  }
+
+  .cb.checked::after {
+    content: '';
+    width: 5px;
+    height: 9px;
+    border-right: 2px solid white;
+    border-bottom: 2px solid white;
+    transform: rotate(40deg) translateY(-1px);
+    display: block;
+  }
+
+  .item-text {
+    font-size: 13.5px;
+    color: var(--text-primary);
+    line-height: 1.5;
+    flex: 1;
+    transition: color 0.15s;
+  }
+
+  .item-text.checked {
+    color: var(--text-muted);
+    text-decoration: line-through;
+    text-decoration-color: var(--border-strong);
+  }
+
+  .tag-crit {
+    font-size: 10px;
+    font-weight: 600;
+    padding: 2px 7px;
+    border-radius: 10px;
+    background: var(--danger-bg);
+    color: var(--danger);
+    flex-shrink: 0;
+    margin-top: 3px;
+    white-space: nowrap;
+    text-transform: uppercase;
+    letter-spacing: 0.03em;
+  }
+
+  .print-note {
+    font-size: 12px;
+    color: var(--text-muted);
+    text-align: center;
+    margin-top: 2rem;
+  }
+
+  @media print {
+    .top-bar { position: static; }
+    .reset-btn { display: none; }
+    body { background: white; }
+    .section { break-inside: avoid; }
+  }
+
+  @media (max-width: 480px) {
+    .top-bar { padding: 12px 16px; }
+    .main { padding: 1.25rem 12px 0; }
+    .stats-row { grid-template-columns: repeat(3, 1fr); gap: 8px; }
+    .stat-card { padding: 10px 12px; }
+    .stat-card .n { font-size: 22px; }
+    .progress-wrap { display: none; }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    * { transition: none !important; }
+  }
+</style>
+</head>
+<body>
+
+<div class="top-bar">
+  <h1>Чеклист QA вёрстки</h1>
+  <div class="progress-pill" id="pill">0 / 0</div>
+  <div class="progress-wrap"><div class="progress-fill" id="pbar" style="width:0%"></div></div>
+  <button class="reset-btn" onclick="resetAll()">Сбросить</button>
+</div>
+
+<div class="main">
+  <div class="page-header">
+    <h2>Проверка вёрстки</h2>
+    <p>Чеклист для дизайнера перед приёмкой у разработки</p>
+  </div>
+
+  <div class="stats-row">
+    <div class="stat-card s-done">
+      <div class="n" id="s-done">0</div>
+      <div class="l">выполнено</div>
+    </div>
+    <div class="stat-card">
+      <div class="n" id="s-total">0</div>
+      <div class="l">всего пунктов</div>
+    </div>
+    <div class="stat-card s-crit">
+      <div class="n" id="s-crit">0</div>
+      <div class="l">критичных ✗</div>
+    </div>
+  </div>
+
+  <div id="list"></div>
+
+  <p class="print-note">Ctrl+P для печати · Прогресс сохраняется в браузере</p>
+</div>
+
+<script>
+const data = [
+  {
+    id: "typo", icon: "Aa", title: "Типографика",
+    items: [
+      { t: "Шрифт соответствует макету: семейство, начертание, размер", c: true },
+      { t: "Межстрочный интервал и трекинг совпадают с макетом", c: true },
+      { t: "Нет автозамены кавычек и дефисов браузером" },
+      { t: "Переносы и widow-слова отсутствуют или обработаны" },
+      { t: "Текст не обрезается и не перекрывается на минимальном контенте", c: true },
+      { t: "Нет артефактов антиалиасинга (размытый или слишком жирный текст)" },
+    ]
+  },
+  {
+    id: "spacing", icon: "⊞", title: "Отступы и сетка",
+    items: [
+      { t: "Padding и margin компонентов соответствуют токенам из макета", c: true },
+      { t: "Колонки и гаттер сетки точно воспроизведены", c: true },
+      { t: "Нет «магических» отступов, отличающихся от дизайн-системы" },
+      { t: "Отступы не схлопываются там, где это не предусмотрено" },
+      { t: "Контент не прилипает к краям экрана на мобильном", c: true },
+    ]
+  },
+  {
+    id: "colors", icon: "◐", title: "Цвета и темы",
+    items: [
+      { t: "Все цвета соответствуют дизайн-токенам, нет хардкода", c: true },
+      { t: "Тёмная тема (если есть) работает без визуальных артефактов", c: true },
+      { t: "Фокусное кольцо видно при клавиатурной навигации", c: true },
+      { t: "Контрастность текста ≥ 4.5:1 (AA) проверена инструментом", c: true },
+      { t: "Цвета брендовых элементов точны (проверка пипеткой)" },
+    ]
+  },
+  {
+    id: "responsive", icon: "⊡", title: "Адаптивность",
+    items: [
+      { t: "Проверены брейкпоинты: 320, 375, 768, 1024, 1440px", c: true },
+      { t: "Горизонтальный скролл отсутствует на любом брейкпоинте", c: true },
+      { t: "Изображения и видео не выходят за пределы контейнера", c: true },
+      { t: "На мобильном touch-таргеты ≥ 44×44px" },
+      { t: "Таблицы и широкие блоки адаптированы (скролл или переформатирование)" },
+      { t: "Ориентация landscape на мобильном не ломает интерфейс" },
+    ]
+  },
+  {
+    id: "images", icon: "▣", title: "Изображения и медиа",
+    items: [
+      { t: "Указаны атрибуты width/height (нет CLS при загрузке)", c: true },
+      { t: "Ретина-версии (2x/3x или SVG) подключены для иконок и лого" },
+      { t: "Состояния ошибки и заглушки изображений предусмотрены" },
+      { t: "Alt-тексты для значимых изображений присутствуют", c: true },
+      { t: "Декоративные изображения имеют alt=\"\" или role=\"presentation\"" },
+      { t: "Видео не воспроизводится автоматически со звуком" },
+    ]
+  },
+  {
+    id: "states", icon: "◎", title: "Состояния и интерактив",
+    items: [
+      { t: "Hover-состояния всех интерактивных элементов реализованы", c: true },
+      { t: "Active/press-состояния реализованы", c: true },
+      { t: "Focus-состояния видны при навигации с клавиатуры (не только мышь)", c: true },
+      { t: "Disabled-состояния визуально отличимы и не реагируют на клик", c: true },
+      { t: "Loading-состояния (скелетоны, спиннеры) соответствуют макету" },
+      { t: "Empty-состояния (пустые списки, 0 результатов) реализованы" },
+      { t: "Error-состояния форм стилизованы правильно", c: true },
+    ]
+  },
+  {
+    id: "components", icon: "◫", title: "Компоненты",
+    items: [
+      { t: "Компоненты из дизайн-системы использованы, не самописные аналоги" },
+      { t: "Отступы внутри компонентов не перебиты стилями страницы", c: true },
+      { t: "Иконки одного размера и стиля (не смешаны outline и filled)", c: true },
+      { t: "Кнопки: правильная иерархия primary/secondary/ghost" },
+      { t: "Формы: лейблы, плейсхолдеры и подсказки совпадают с макетом" },
+      { t: "Тултипы и поповеры не обрезаются по viewport" },
+    ]
+  },
+  {
+    id: "animation", icon: "◌", title: "Анимации и переходы",
+    items: [
+      { t: "Анимации соответствуют кривым easing из макета/спецификации" },
+      { t: "Длительности анимаций совпадают с токенами дизайн-системы" },
+      { t: "prefers-reduced-motion отключает декоративные анимации" },
+      { t: "Нет мерцания при монтировании компонентов" },
+    ]
+  },
+  {
+    id: "a11y", icon: "◉", title: "Доступность",
+    items: [
+      { t: "Логичный порядок фокуса при Tab-навигации", c: true },
+      { t: "Модальные окна ловят фокус и не пускают его за пределы", c: true },
+      { t: "Aria-label / aria-labelledby на icon-only кнопках", c: true },
+      { t: "Смысловая HTML-разметка: h1–h6, main, nav, section верны" },
+      { t: "Нет текстового контента только в CSS (::before/::after)" },
+    ]
+  },
+  {
+    id: "quality", icon: "✓", title: "Качество кода",
+    items: [
+      { t: "Нет console.error и console.warn в браузере", c: true },
+      { t: "Нет сломанных ссылок и 404 для ресурсов (картинки, шрифты)", c: true },
+      { t: "Шрифты подключены с font-display: swap или аналогом" },
+      { t: "Нет layout shift (CLS) при загрузке страницы" },
+      { t: "Лишние обёртки и пустые div-ы отсутствуют" },
+    ]
+  },
+];
+
+let state = {};
+let openSections = {};
+
+try {
+  const saved = localStorage.getItem('design_qa_v1');
+  if (saved) state = JSON.parse(saved);
+} catch(e) {}
+
+data.forEach(s => { openSections[s.id] = true; });
+
+function save() {
+  try { localStorage.setItem('design_qa_v1', JSON.stringify(state)); } catch(e) {}
+}
+
+function toggle(key) {
+  state[key] = !state[key];
+  save();
+  renderItem(key);
+  updateStats();
+  updateSectionBadge(key.split('-')[0]);
+}
+
+function toggleSection(id) {
+  openSections[id] = !openSections[id];
+  const itemsEl = document.getElementById('items-' + id);
+  const chevron = document.getElementById('chev-' + id);
+  if (itemsEl) {
+    itemsEl.style.display = openSections[id] ? 'block' : 'none';
+  }
+  if (chevron) {
+    chevron.className = 'sec-chevron' + (openSections[id] ? ' open' : '');
+  }
+}
+
+function renderItem(key) {
+  const el = document.getElementById('item-' + key);
+  if (!el) return;
+  const cb = el.querySelector('.cb');
+  const txt = el.querySelector('.item-text');
+  const tag = el.querySelector('.tag-crit');
+  const chk = !!state[key];
+  if (chk) { cb.classList.add('checked'); txt.classList.add('checked'); }
+  else { cb.classList.remove('checked'); txt.classList.remove('checked'); }
+  if (tag) tag.style.display = chk ? 'none' : '';
+}
+
+function updateSectionBadge(secId) {
+  const sec = data.find(s => s.id === secId);
+  if (!sec) return;
+  let done = 0;
+  sec.items.forEach((_, i) => { if (state[secId + '-' + i]) done++; });
+  const badge = document.getElementById('badge-' + secId);
+  if (badge) {
+    badge.textContent = done + '/' + sec.items.length;
+    badge.className = 'sec-badge' + (done === sec.items.length ? ' done' : done > 0 ? ' partial' : '');
+  }
+}
+
+function updateStats() {
+  let done = 0, total = 0, crit = 0;
+  data.forEach(sec => sec.items.forEach((item, i) => {
+    const key = sec.id + '-' + i;
+    total++;
+    if (state[key]) done++;
+    else if (item.c) crit++;
+  }));
+  document.getElementById('s-done').textContent = done;
+  document.getElementById('s-total').textContent = total;
+  document.getElementById('s-crit').textContent = crit;
+  const pct = total ? Math.round(done / total * 100) : 0;
+  document.getElementById('pbar').style.width = pct + '%';
+  document.getElementById('pill').textContent = done + ' / ' + total;
+}
+
+function resetAll() {
+  if (!confirm('Сбросить весь прогресс?')) return;
+  state = {};
+  save();
+  document.querySelectorAll('.cb').forEach(el => el.classList.remove('checked'));
+  document.querySelectorAll('.item-text').forEach(el => el.classList.remove('checked'));
+  document.querySelectorAll('.tag-crit').forEach(el => el.style.display = '');
+  data.forEach(sec => updateSectionBadge(sec.id));
+  updateStats();
+}
+
+function render() {
+  const list = document.getElementById('list');
+  list.innerHTML = data.map(sec => {
+    let done = 0;
+    sec.items.forEach((_, i) => { if (state[sec.id + '-' + i]) done++; });
+    const total = sec.items.length;
+    const badgeCls = 'sec-badge' + (done === total ? ' done' : done > 0 ? ' partial' : '');
+
+    const itemsHtml = sec.items.map((item, i) => {
+      const key = sec.id + '-' + i;
+      const chk = !!state[key];
+      return `<div class="item" id="item-${key}" onclick="toggle('${key}')">
+        <div class="cb${chk ? ' checked' : ''}"></div>
+        <span class="item-text${chk ? ' checked' : ''}">${item.t}</span>
+        ${item.c && !chk ? `<span class="tag-crit">критично</span>` : item.c && chk ? `<span class="tag-crit" style="display:none">критично</span>` : ''}
+      </div>`;
+    }).join('');
+
+    return `<div class="section">
+      <div class="sec-header" onclick="toggleSection('${sec.id}')">
+        <div class="sec-icon">${sec.icon}</div>
+        <span class="sec-title">${sec.title}</span>
+        <span class="${badgeCls}" id="badge-${sec.id}">${done}/${total}</span>
+        <span class="sec-chevron open" id="chev-${sec.id}">▼</span>
+      </div>
+      <div class="items" id="items-${sec.id}">${itemsHtml}</div>
+    </div>`;
+  }).join('');
+}
+
+render();
+updateStats();
+</script>
+</body>
+</html>
